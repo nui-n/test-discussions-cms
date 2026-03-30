@@ -1,0 +1,12 @@
+name: retrieve
+
+on:
+  discussion:
+    types:
+      - created
+      - edited
+      - deleted
+
+jobs:
+  retrieve:
+    runs-on: ubuntu-latest
