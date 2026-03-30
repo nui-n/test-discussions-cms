@@ -38,7 +38,7 @@ jobs:
     if: ${{ github.event.comment && github.event.discussion.category.name == 'Posts' && github.event.comment.user.login == github.repository_owner }}
     steps:
       - uses: actions/checkout@v6
-      - run: echo "${{ toJSON(github.event.discussion) }}"
+      - run: echo "${{ toJSON(github.event.comment) }}"
         continue-on-error: true
       - run: echo "${{ github.event.comment.created_at }}"
       - run: echo "${{ github.event.comment.updated_at }}"
