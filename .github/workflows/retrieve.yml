@@ -14,12 +14,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  retrieve:
+  discussion:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       discussions: read
-    if: ${{ github.event.discussion.category.name == 'Posts' && github.event.discussion.user.login == github.repository_owner }}
+    if: ${{ !github.event.comment && github.event.discussion.category.name == 'Posts' && github.event.discussion.user.login == github.repository_owner }}
     steps:
       - uses: actions/checkout@v6
       - run: echo "${{ toJSON(github.event.discussion) }}"
@@ -29,3 +29,18 @@ jobs:
       - run: echo "${{ github.event.discussion.updated_at }}"
       - run: echo "${{ github.event.discussion.comments }}"
       - run: echo "${{ github.event.discussion.body }}"
+
+  discussion_comment:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      discussions: read
+    if: ${{ github.event.comment && github.event.discussion.category.name == 'Posts' && github.event.comment.user.login == github.repository_owner }}
+    steps:
+      - uses: actions/checkout@v6
+      - run: echo "${{ toJSON(github.event.discussion) }}"
+        continue-on-error: true
+      - run: echo "${{ github.event.comment.created_at }}"
+      - run: echo "${{ github.event.comment.updated_at }}"
+      - run: echo "${{ github.event.comment.child_comment_count }}"
+      - run: echo "${{ github.event.comment.body }}"
