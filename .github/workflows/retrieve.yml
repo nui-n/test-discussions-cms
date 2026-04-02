@@ -30,7 +30,7 @@ jobs:
     permissions:
       contents: write
       discussions: read
-    if: ${{ !github.event.comment }}
+    # if: ${{ !github.event.comment }}
     steps:
       - uses: actions/checkout@v6
       - run: echo "${{ toJSON(github.event.discussion) }}"
@@ -40,6 +40,19 @@ jobs:
       - run: echo "${{ github.event.discussion.updated_at }}"
       - run: echo "${{ github.event.discussion.comments }}"
       - run: echo "${{ github.event.discussion.body }}"
+      - name: Build markdown
+        run: |
+          MD_CONTENT=$(cat <<EOF
+          ---
+          title: "${${{ github.event.discussion.title }}//\"/\\\"}"
+          created_at: "${{ github.event.discussion.created_at }}"
+          updated_at: "${{ github.event.discussion.updated_at }}"
+          comments: ${{ github.event.discussion.comments }}
+          ---
+
+          ${{ github.event.discussion.body }}
+          EOF
+      - run: echo "$MD_CONTENT"
 
   discussion_comment:
     needs: check
@@ -56,3 +69,16 @@ jobs:
       - run: echo "${{ github.event.comment.updated_at }}"
       - run: echo "${{ github.event.comment.child_comment_count }}"
       - run: echo "${{ github.event.comment.body }}"
+      - name: Build markdown
+        run: |
+          MD_CONTENT=$(cat <<EOF
+          ---
+          title: "${${{ github.event.discussion.title }}//\"/\\\"}"
+          created_at: "${{ github.event.comment.created_at }}"
+          updated_at: "${{ github.event.comment.updated_at }}"
+          comments: ${{ github.event.comment.child_comment_count }}
+          ---
+
+          ${{ github.event.comment.body }}
+          EOF
+      - run: echo "$MD_CONTENT"
