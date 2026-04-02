@@ -54,7 +54,8 @@ jobs:
           ${{ github.event.discussion.body }}
           EOF
           )
-      - run: echo "$MD_CONTENT"
+          echo "$MD_CONTENT"
+      # - run: echo "$MD_CONTENT"
 
   discussion_comment:
     needs: check
@@ -85,4 +86,5 @@ jobs:
           ${{ github.event.comment.body }}
           EOF
           )
-      - run: echo "$MD_CONTENT"
+          echo "$MD_CONTENT"
+      # - run: echo "$MD_CONTENT"
