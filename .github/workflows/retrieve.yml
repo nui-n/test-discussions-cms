@@ -19,8 +19,6 @@ jobs:
     permissions:
       discussions: read
     if: ${{ github.event.discussion.category.name == 'Posts' && github.event.discussion.user.login == github.repository_owner }}
-    steps:
-      - uses: actions/checkout@v6
 
   discussion:
     needs: check
