@@ -41,6 +41,7 @@ jobs:
       - run: echo "${{ github.event.discussion.comments }}"
       - run: echo "${{ github.event.discussion.body }}"
       - name: Build markdown
+        id: build_md
         run: |
           TITLE='${{ github.event.discussion.title }}'
           MD_CONTENT=$(cat <<EOF
@@ -55,7 +56,10 @@ jobs:
           EOF
           )
           echo "$MD_CONTENT"
-      # - run: echo "$MD_CONTENT"
+          echo "markdown<<EOF" >> $GITHUB_OUTPUT
+          echo "$MD_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - run: echo "${{ steps.build_md.outputs.markdown }}"
 
   discussion_comment:
     needs: check
@@ -73,6 +77,7 @@ jobs:
       - run: echo "${{ github.event.comment.child_comment_count }}"
       - run: echo "${{ github.event.comment.body }}"
       - name: Build markdown
+        id: build_md
         run: |
           TITLE='${{ github.event.discussion.title }}'
           MD_CONTENT=$(cat <<EOF
@@ -87,4 +92,7 @@ jobs:
           EOF
           )
           echo "$MD_CONTENT"
-      # - run: echo "$MD_CONTENT"
+          echo "markdown<<EOF" >> $GITHUB_OUTPUT
+          echo "$MD_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - run: echo "${{ steps.build_md.outputs.markdown }}"
