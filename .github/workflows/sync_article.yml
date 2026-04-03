@@ -28,6 +28,8 @@ jobs:
       ID: ${{ github.event.discussion.node_id }}
       ACTION: ${{ github.event.action }}
     steps:
+      - uses: actions/checkout@v6
+
       - name: Print full data
         run: echo "${{ toJSON(github.event.discussion) }}"
         continue-on-error: true
@@ -52,7 +54,6 @@ jobs:
           ls -lh
           cat "${ID}.md" >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/checkout@v6
       - run: |
           ls -lh
       - name: Configure git
