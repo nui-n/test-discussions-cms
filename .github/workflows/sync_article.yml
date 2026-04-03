@@ -34,6 +34,7 @@ jobs:
           ls -lh
       - name: Build markdown
         run: |
+          TITLE='${{ github.event.discussion.title }}'
           cat > "${{ github.event.discussion.node_id }}.md" <<EOF
           ---
           title: "${TITLE//\"/\\\"}"
