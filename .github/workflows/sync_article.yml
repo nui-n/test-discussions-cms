@@ -74,4 +74,5 @@ jobs:
             git rm ${ID}.md
             git commit -m "delete ${ID}.md"
           fi
+
           git push -u origin data
