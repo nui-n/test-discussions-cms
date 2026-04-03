@@ -28,9 +28,7 @@ jobs:
       - name: Print full data
         run: echo "${{ toJSON(github.event.discussion) }}"
         continue-on-error: true
-      - uses: actions/checkout@v6
-        with:
-          ref: data
+
       - run: |
           pwd
           ls -lh
