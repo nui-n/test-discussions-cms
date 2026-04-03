@@ -1,0 +1,51 @@
+# https://tech.excite.co.jp/entry/2023/12/21/141427
+
+name: sync article
+
+on:
+  discussion:
+    types:
+      - created
+      - edited
+      - deleted
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      discussions: read
+    steps:
+      - run: ${{ github.event.discussion.category.name == 'Posts' && github.event.discussion.user.login == github.repository_owner }}
+
+  discussion:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      discussions: read
+    steps:
+      - name: Print full data
+        run: echo "${{ toJSON(github.event.discussion) }}"
+        continue-on-error: true
+      - uses: actions/checkout@v6
+        with:
+          ref: data
+      - run: |
+          pwd
+          ls -lh
+      - name: Build markdown
+        run: |
+          cat > "${{ github.event.discussion.node_id }}.md" <<EOF
+          ---
+          title: "${TITLE//\"/\\\"}"
+          created_at: "${{ github.event.discussion.created_at }}"
+          updated_at: "${{ github.event.discussion.updated_at }}"
+          comments: ${{ github.event.discussion.comments }}
+          ---
+
+          ${{ github.event.discussion.body }}
+          EOF
+      - run: |
+          ls -lh
+          cat "${{ github.event.discussion.node_id }}.md" >> "$GITHUB_STEP_SUMMARY"
