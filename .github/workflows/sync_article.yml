@@ -36,7 +36,7 @@ jobs:
 
       - run: |
           pwd
-          ls -lh
+          ls -lha
       - name: Build markdown
         run: |
           TITLE='${{ github.event.discussion.title }}'
@@ -51,11 +51,9 @@ jobs:
           ${{ github.event.discussion.body }}
           EOF
       - run: |
-          ls -lh
+          ls -lha
           cat "${ID}.md" >> "$GITHUB_STEP_SUMMARY"
 
-      - run: |
-          ls -lh
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
@@ -66,10 +64,10 @@ jobs:
             git fetch origin data:data
             git switch data
           else
-            git switch -c data
+            git switch --orphan data
           fi
       - run: |
-          ls -lh
+          ls -lha
       - name: Make changes and push
         run: |
           if [ ${ACTION} = "created" ] || [ ${ACTION} = "edited" ]; then
