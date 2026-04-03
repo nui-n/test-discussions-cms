@@ -53,6 +53,8 @@ jobs:
           cat "${ID}.md" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/checkout@v6
+      - run: |
+          ls -lh
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
@@ -65,6 +67,8 @@ jobs:
           else
             git switch -c data
           fi
+      - run: |
+          ls -lh
       - name: Make changes and push
         run: |
           if [ ${ACTION} = "created" ] || [ ${ACTION} = "edited" ]; then
