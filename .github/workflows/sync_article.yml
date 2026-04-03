@@ -25,7 +25,8 @@ jobs:
       contents: write
       discussions: read
     env:
-      id: ${{ github.event.discussion.node_id }}
+      ID: ${{ github.event.discussion.node_id }}
+      ACTION: ${{ github.event.action }}
     steps:
       - name: Print full data
         run: echo "${{ toJSON(github.event.discussion) }}"
@@ -37,7 +38,7 @@ jobs:
       - name: Build markdown
         run: |
           TITLE='${{ github.event.discussion.title }}'
-          cat > "${{ env.id }}.md" <<EOF
+          cat > "${ID}.md" <<EOF
           ---
           title: "${TITLE//\"/\\\"}"
           created_at: "${{ github.event.discussion.created_at }}"
@@ -49,7 +50,7 @@ jobs:
           EOF
       - run: |
           ls -lh
-          cat "${{ env.id }}.md" >> "$GITHUB_STEP_SUMMARY"
+          cat "${ID}.md" >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/checkout@v6
       - name: Configure git
@@ -66,11 +67,11 @@ jobs:
           fi
       - name: Make changes and push
         run: |
-          if ${{ github.event.action == 'created' || github.event.action == 'edited' }} then
+          if [ ${ACTION} = "created" ] || [ ${ACTION} = "edited" ]; then
             git add .
-            git commit -m "add ${{ env.id }}.md" || echo "no changes"
+            git commit -m "add ${ID}.md" || echo "no changes"
           else
-            git rm ${{ env.id }}.md
-            git commit -m "delete ${{ env.id }}.md"
+            git rm ${ID}.md
+            git commit -m "delete ${ID}.md"
           fi
           git push -u origin data
