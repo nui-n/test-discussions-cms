@@ -51,6 +51,7 @@ jobs:
           ls -lh
           cat "${{ env.id }}.md" >> "$GITHUB_STEP_SUMMARY"
 
+      - uses: actions/checkout@v6
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
