@@ -1,0 +1,99 @@
+name: Sync post
+
+on:
+  discussion:
+    types:
+      - created
+      - edited
+      - deleted
+  discussion_comment:
+    types:
+      - created
+      - edited
+      - deleted
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      discussions: read
+    steps:
+      - run: ${{ github.event.discussion.category.name == 'Posts' && github.event.discussion.user.login == github.repository_owner }}
+
+  discussion:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      discussions: read
+    env:
+      ID: ${{ github.event.discussion.node_id }}
+      ACTION: ${{ github.event.action }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Print full data
+        run: echo "${{ toJSON(github.event.discussion) }}"
+        continue-on-error: true
+
+      - run: |
+          pwd
+          ls -lha
+      - name: Build json
+        id: build-json
+        uses: actions/github-script@v8
+        with:
+          result-encoding: string
+          script: |
+            const json = {
+              title: '${{ github.event.discussion.title }}',
+              createdAt: '${{ github.event.discussion.created_at }}',
+              updatedAt: '${{ github.event.discussion.updated_at }}',
+              description: '${{ github.event.discussion.body }}',
+              postCount: ${{ github.event.discussion.comments }}
+              posts: [
+                {
+                  createdAt: '${{ github.event.comment.created_at }}',
+                  updatedAt: '${{ github.event.comment.updated_at }}',
+                  body: '${{ github.event.comment.body }}',
+                }
+              ]
+            }
+
+            return JSON.stringify(json)
+      - name: Make json file
+        run: |
+          JSON='${{ steps.build-json.outputs.result }}'
+          cat > "${ID}.json" <<EOF
+          ${JSON}
+          EOF
+      - run: |
+          ls -lha
+          cat "${ID}.json" >> "$GITHUB_STEP_SUMMARY"
+
+      # - name: Configure git
+      #   run: |
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      # - name: Create data branch if missing and switch
+      #   run: |
+      #     if git ls-remote --heads origin data | grep -q data; then
+      #       git fetch origin data:data
+      #       git switch data
+      #     else
+      #       git switch --orphan data
+      #     fi
+      # - run: |
+      #     ls -lha
+      # - name: Make changes and push
+      #   run: |
+      #     if [ ${ACTION} = "created" ] || [ ${ACTION} = "edited" ]; then
+      #       git add .
+      #       git commit -m "add ${ID}.md" || echo "no changes"
+      #     else
+      #       git rm ${ID}.md
+      #       git commit -m "delete ${ID}.md"
+      #     fi
+
+      #     git push -u origin data
