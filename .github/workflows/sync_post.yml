@@ -51,7 +51,7 @@ jobs:
               createdAt: '${{ github.event.discussion.created_at }}',
               updatedAt: '${{ github.event.discussion.updated_at }}',
               description: '${{ github.event.discussion.body }}',
-              postCount: ${{ github.event.discussion.comments }}
+              postCount: ${{ github.event.discussion.comments }},
               posts: [
                 {
                   createdAt: '${{ github.event.comment.created_at }}',
