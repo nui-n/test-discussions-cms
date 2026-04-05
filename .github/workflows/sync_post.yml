@@ -84,15 +84,22 @@ jobs:
           sudo apt-get install moreutils
           id='${{ github.event.comment.node_id }}'
           post='{"item_id":"${id}","created_at":"${{ github.event.comment.created_at }}","updated_at":"${{ github.event.comment.updated_at }}","body":"${{ github.event.comment.body }}"}'
-          jq --argjson post "$post" --argjson id "$id" '
-          .items = (
-            if any(.items[]; .item_id == $id) then
-              (.items | map(if .item_id == $id then $post else . end))
-            else
-              .items + [$post]
-            end
-          )
-          ' ${ID}.json > tmp && mv tmp ${ID}.json
+          jq '.items[] | .item_id = "${id}"' ${ID}.json > tmp && mv tmp ${ID}.json
+
+      # - name: Upsert json file
+      #   run: |
+      #     sudo apt-get install moreutils
+      #     id='${{ github.event.comment.node_id }}'
+      #     post='{"item_id":"${id}","created_at":"${{ github.event.comment.created_at }}","updated_at":"${{ github.event.comment.updated_at }}","body":"${{ github.event.comment.body }}"}'
+      #     jq --argjson post "$post" --argjson id "$id" '
+      #     .items = (
+      #       if any(.items[]; .item_id == $id) then
+      #         (.items | map(if .item_id == $id then $post else . end))
+      #       else
+      #         .items + [$post]
+      #       end
+      #     )
+      #     ' ${ID}.json > tmp && mv tmp ${ID}.json
       - run: |
           ls -lha
           cat "${ID}.json"
