@@ -84,7 +84,7 @@ jobs:
           sudo apt-get install moreutils
           id='${{ github.event.comment.node_id }}'
           post='{"item_id":"${id}","created_at":"${{ github.event.comment.created_at }}","updated_at":"${{ github.event.comment.updated_at }}","body":"${{ github.event.comment.body }}"}'
-          jq '.items[] | .item_id = "${id}"' ${ID}.json > tmp && mv tmp ${ID}.json
+          jq '.posts[] | .item_id = "${id}"' ${ID}.json > tmp && mv tmp ${ID}.json
 
       # - name: Upsert json file
       #   run: |
