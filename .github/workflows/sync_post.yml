@@ -42,34 +42,60 @@ jobs:
       - run: |
           pwd
           ls -lha
+      - name: Check file exists
+        id: check
+        run: |
+          if [ -f ${ID}.json ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build json
         id: build-json
+        if: ${{ steps.check.outputs.exists == 'false' }}
         uses: actions/github-script@v8
         with:
           result-encoding: string
           script: |
             const json = {
               title: '${{ github.event.discussion.title }}',
-              createdAt: '${{ github.event.discussion.created_at }}',
-              updatedAt: '${{ github.event.discussion.updated_at }}',
+              created_at: '${{ github.event.discussion.created_at }}',
+              updated_at: '${{ github.event.discussion.updated_at }}',
               description: '${{ github.event.discussion.body }}',
-              postCount: ${{ github.event.discussion.comments }},
-              posts: [
-                {
-                  createdAt: '${{ github.event.comment.created_at }}',
-                  updatedAt: '${{ github.event.comment.updated_at }}',
-                  body: '${{ github.event.comment.body }}',
-                }
-              ]
+              post_count: ${{ github.event.discussion.comments }},
+              posts: []
             }
 
             return JSON.stringify(json)
       - name: Make json file
+        if: ${{ steps.build-json.outputs.result }}
         run: |
           JSON='${{ steps.build-json.outputs.result }}'
           cat > "${ID}.json" <<EOF
           ${JSON}
           EOF
+
+      - name: Upsert json file
+        run: |
+          id=${{ github.event.comment.node_id }}
+          post='
+            {
+              "item_id": "${id}",
+              "created_at": "${{ github.event.comment.created_at }}",
+              "updated_at": "${{ github.event.comment.updated_at }}",
+              "body": "${{ github.event.comment.body }}",
+            }
+          '
+          jq --argjson post "$post" --argjson id "$id" '
+          .items = (
+            if any(.items[]; .item_id == $id) then
+              (.items | map(if .item_id == $id then $post else . end))
+            else
+              .items + [$post]
+            end
+          )
+          ' ${ID}.json | sponge ${ID}.json
       - run: |
           ls -lha
           cat "${ID}.json" >> "$GITHUB_STEP_SUMMARY"
