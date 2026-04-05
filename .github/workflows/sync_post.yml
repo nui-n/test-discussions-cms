@@ -83,7 +83,7 @@ jobs:
         run: |
           id='${{ github.event.comment.node_id }}'
           post_data='{"item_id":"${id}","created_at":"${{ github.event.comment.created_at }}","updated_at":"${{ github.event.comment.updated_at }}","body":"${{ github.event.comment.body }}"}'
-          cat "${post_data}"
+          echo "${post_data}"
           cat ${ID}.json | jq --argjson post "$post_data" '.posts += [$post]'
 
       # - name: Upsert json file
