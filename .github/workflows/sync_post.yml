@@ -78,6 +78,7 @@ jobs:
 
       - name: Upsert json file
         run: |
+          sudo apt-get install moreutils
           id=${{ github.event.comment.node_id }}
           post='
             {
