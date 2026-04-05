@@ -99,7 +99,7 @@ jobs:
               .items + [$post]
             end
           )
-          ' ${ID}.json | sponge ${ID}.json
+          ' ${ID}.json > tmp && mv tmp ${ID}.json
       - run: |
           ls -lha
           cat "${ID}.json"
