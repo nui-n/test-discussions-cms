@@ -75,6 +75,9 @@ jobs:
           cat > "${ID}.json" <<EOF
           ${JSON}
           EOF
+      - run: |
+          ls -lha
+          cat "${ID}.json"
 
       - name: Upsert json file
         run: |
@@ -99,6 +102,7 @@ jobs:
           ' ${ID}.json | sponge ${ID}.json
       - run: |
           ls -lha
+          cat "${ID}.json"
           cat "${ID}.json" >> "$GITHUB_STEP_SUMMARY"
 
       # - name: Configure git
